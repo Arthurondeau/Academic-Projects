@@ -1,8 +1,0 @@
-Attention il y a un "gros" problème dans le code. Le slicing s'arrête un rang avant celui indiqué, donc quand on écrit : 
-
-self.sigma_p = np.zeros(Nb+No)
-self.sigma_p[:Nb] = sigma_p
-On ne vient d'attribuer uniquement les Nb-1 premières particules ! 
-
-
-On a pas eu ce problème avec les positions_all et velocity_all car on a concatenate ! mais pour les rayons je crois qu'il faut revoir le truc au calme.
