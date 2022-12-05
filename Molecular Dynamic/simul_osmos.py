@@ -14,7 +14,6 @@ class Simul:
         self.No = No
         self.Nb = Nb
         self.Np = Nb+No
-        print('Np',self.Np)
         self.sigma = sigma_p # blue particle radius
         self.sigma_m = sigma_m
         #sigma_o = sigma_p*f # orange particle radius, must be lower than the distance betwee membrane particule and where is the ratio of radii particles and f² is the ratio of particle masses
@@ -48,8 +47,6 @@ class Simul:
         self.sigma_p[Nb::No] = sigma_o
         self.sigma_pgrid = np.zeros((self.Np,2))
         self.sigma_pgrid[:,0] = self.sigma_p
-        print('sigmap',self.sigma_p)
-        input()
         self.sigma_pgrid[:,1] = self.sigma_p
         
         self.position_p = np.concatenate((self.position,self.position_o),axis=0)
@@ -78,19 +75,12 @@ class Simul:
         # _p sont elles mises à jour ! 
         velocity = self._velocity_all[:self.Np]
         position = self.position_all[:self.Np]
-        print('taille position',np.shape(position))
         time_part = np.where(velocity > 0, (self.Lgrid - self.sigma_pgrid- position) / velocity, (self.sigma_pgrid-position / velocity))
         #find the disk and direction corresponding to smallest v0
         coord = np.unravel_index(time_part.argmin(), time_part.shape)
         first_collision_time = np.min(time_part)
         particle = coord[0]
         direction = coord[1]
-        print('time matrix',time_part)
-        print('first time', first_collision_time)
-        print('particle number', particle)
-        print('direction',direction)
-        print('matrix position all', self.position_all)
-        print('sigmagrid' ,self.sigma_pgrid)
         
         return first_collision_time, particle, direction
 	# calculate time of first collision, particle involved and direction
@@ -129,19 +119,16 @@ class Simul:
         bool_c = np.where(c>0,True,False) # liste testant si des couples ij de particules se superposent ( vrai si pas de superposition faux sinon) 
         bool_c = np.all(bool_c) # renvoie vrai si toutes les particules sont non superposées
         #print("arguments pair time", choc_time,particule)
-        print('w_time',w_time)
-        print('choc_time',choc_time)
-        print('sampletime',self._sample_time)
+
         while (w_time < self._sample_time -current_time) | (choc_time < self._sample_time -current_time) :   # think about this
             #Update position but with two differents cases
             if(w_time<choc_time) :
-                print('vitesse avant choc',self._velocity_all)
                 
                 self.position_all += w_time* self._velocity_all
                 #Update the pressure
                 pressure += 2*abs(self._velocity_all[particle][direction])/(self._sample_time*self.L[direction])
                 self._velocity_all[particle][direction] = - self._velocity_all[particle][direction]
-                print('vitesse après choc',self._velocity_all)
+
                 #Update current time 
                 current_time += w_time
                 w_time, particle, direction = self._wall_time()  # update collisions times
